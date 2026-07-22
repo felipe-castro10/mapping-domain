@@ -6,7 +6,7 @@ interface SaleProps {
   productId: UniqueEntityID;
   amount: number;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 export class Sale extends Entity<SaleProps> {
