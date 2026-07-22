@@ -3,12 +3,14 @@ import type { ProductsRepository } from "../repositories/product-repository";
 import type { SupliersRepository } from "../repositories/suplier-repository";
 import { Buy } from "../entities/buy";
 import type { BuysRepository } from "../repositories/buy-repository";
+import type { StoragesRepository } from "../repositories/storage-repository";
 
 interface CreateOrderBuyUseCaseRequest {
   productId: UniqueEntityID;
   amount: number;
-  deliverTime: Date;
+  deliveryDate: Date;
   suplierId: UniqueEntityID;
+  storageId?: UniqueEntityID;
 }
 
 export class CreateOrderBuyUseCase {
@@ -21,7 +23,7 @@ export class CreateOrderBuyUseCase {
   async execute({
     productId,
     amount,
-    deliverTime,
+    deliveryDate,
     suplierId,
   }: CreateOrderBuyUseCaseRequest) {
     const findProduct = await this.productsRepositors.findById(productId);
@@ -39,7 +41,7 @@ export class CreateOrderBuyUseCase {
     const orderBuy = Buy.create({
       productId,
       amount,
-      deliverTime,
+      deliveryDate,
       suplierId,
     });
 

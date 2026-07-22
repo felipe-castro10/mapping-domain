@@ -6,7 +6,7 @@ interface StorageProps {
   productId: UniqueEntityID;
   amount: number;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 export class Storage extends Entity<StorageProps> {
@@ -26,18 +26,6 @@ export class Storage extends Entity<StorageProps> {
   set amount(amount: number) {
     this.props.amount = amount;
     this.touch();
-  }
-
-  private updateAmount(amount: number, type: "DESC" | "ASC") {
-    if (type === "DESC") {
-      this.props.amount = this.props.amount - amount;
-      this.touch();
-    }
-
-    if (type === "ASC") {
-      this.props.amount = this.props.amount + amount;
-      this.touch();
-    }
   }
 
   private touch() {

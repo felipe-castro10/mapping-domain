@@ -5,9 +5,11 @@ import type { UniqueEntityID } from "@/core/entities/unique-entity-id";
 interface BuyProps {
   productId: UniqueEntityID;
   amount: number;
-  deliverTime: Date;
+  deliveryDate: Date;
+  receiptDate?: Date;
   suplierId: UniqueEntityID;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export class Buy extends Entity<BuyProps> {
@@ -18,13 +20,21 @@ export class Buy extends Entity<BuyProps> {
     return this.props.amount;
   }
   get deliverTime() {
-    return this.props.deliverTime;
+    return this.props.deliveryDate;
+  }
+  get receiptDate() {
+    return this.props.receiptDate;
   }
   get suplierId() {
     return this.props.suplierId;
   }
   get createdAt() {
     return this.props.createdAt;
+  }
+
+  set receiptDate(receiptDate) {
+    this.props.receiptDate = receiptDate;
+    this.props.updatedAt = new Date();
   }
 
   static create(props: Optional<BuyProps, "createdAt">, id?: UniqueEntityID) {

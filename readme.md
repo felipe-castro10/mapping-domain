@@ -34,9 +34,10 @@ Domain Expert: Seria muito útil se o sistema pudesse nos permitir criar e geren
 
 ## Casos de Uso
 
-- [ ] Criar ordem de compra.
-- [ ] Cadastro um produto.
-- [ ] Criar estoque.
+- [x] Criar ordem de compra.
+- [x] Cadastro um produto.
+- [x] Cadastro fornecedor.
+- [] Criar estoque.
 - [ ] Criar uma ordem de venda.
 - [ ] Relatório estoque mínimo.
 - [ ] Relatório métricas.
