@@ -26,10 +26,11 @@ Domain Expert: Seria muito útil se o sistema pudesse nos permitir criar e geren
 
 ## Entities identificadas
 
-- Product
-- Storage
-- Sale
-- Buy
+- [x] Product (produto)
+- [x] Storage (estoque)
+- [x] Sale (Compra)
+- [x] Buy (venda)
+- [x] Suplier (fornecedor)
 
 ## Casos de Uso
 
