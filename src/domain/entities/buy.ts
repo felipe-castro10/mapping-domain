@@ -2,32 +2,35 @@ import type { Optional } from "@/core/@types/optional";
 import { Entity } from "@/core/entities/entity";
 import type { UniqueEntityID } from "@/core/entities/unique-entity-id";
 
-interface BuyProps {
+export interface BuyItem {
   productId: UniqueEntityID;
   amount: number;
-  deliveryDate: Date;
-  receiptDate?: Date;
+  costPerUnit: number;
   suplierId: UniqueEntityID;
+  deliveryDate: Date;
+}
+
+interface BuyProps {
+  items: BuyItem[];
+  total: number;
+  receiptDate?: Date;
   createdAt: Date;
   updatedAt?: Date;
 }
 
 export class Buy extends Entity<BuyProps> {
-  get productId() {
-    return this.props.productId;
+  get items() {
+    return this.props.items;
   }
-  get amount() {
-    return this.props.amount;
+
+  get total() {
+    return this.props.total;
   }
-  get deliverTime() {
-    return this.props.deliveryDate;
-  }
+
   get receiptDate() {
     return this.props.receiptDate;
   }
-  get suplierId() {
-    return this.props.suplierId;
-  }
+
   get createdAt() {
     return this.props.createdAt;
   }
@@ -37,14 +40,26 @@ export class Buy extends Entity<BuyProps> {
     this.props.updatedAt = new Date();
   }
 
-  static create(props: Optional<BuyProps, "createdAt">, id?: UniqueEntityID) {
+  private calcTotal() {
+    this.props.total = this.props.items.reduce((acc, item) => {
+      return acc + item.costPerUnit * item.amount;
+    }, 0);
+  }
+
+  static create(
+    props: Optional<BuyProps, "createdAt" | "total">,
+    id?: UniqueEntityID,
+  ) {
     const buy = new Buy(
       {
         ...props,
-        createdAt: new Date(),
+        total: props.total ?? 0,
+        createdAt: props.createdAt ?? new Date(),
       },
       id,
     );
+
+    buy.calcTotal();
 
     return buy;
   }

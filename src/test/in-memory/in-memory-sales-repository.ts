@@ -5,6 +5,19 @@ import type { SalesRepository } from "@/domain/repositories/sale-repository";
 export class InMemorySalesRepository implements SalesRepository {
   public items: Sale[] = [];
 
+  async fetchByPeriod(startDate: Date, endDate: Date): Promise<Sale[] | null> {
+    const fetch = this.items.filter((sale) => {
+      const saleTime = sale.createdAt.getTime();
+      return saleTime >= startDate.getTime() && saleTime <= endDate.getTime();
+    });
+
+    if (!fetch) {
+      return null;
+    }
+
+    return fetch;
+  }
+
   async create(sale: Sale): Promise<void> {
     this.items.push(sale);
   }

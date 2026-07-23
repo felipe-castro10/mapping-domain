@@ -1,16 +1,20 @@
 import type { UniqueEntityID } from "@/core/entities/unique-entity-id";
 import type { ProductsRepository } from "../repositories/product-repository";
 import type { SupliersRepository } from "../repositories/suplier-repository";
-import { Buy } from "../entities/buy";
+import { Buy, type BuyItem } from "../entities/buy";
 import type { BuysRepository } from "../repositories/buy-repository";
 import type { StoragesRepository } from "../repositories/storage-repository";
 
-interface CreateOrderBuyUseCaseRequest {
+interface OrdemItemRequest {
   productId: UniqueEntityID;
   amount: number;
+  costPerUnit: number;
+}
+
+interface CreateOrderBuyUseCaseRequest {
+  items: OrdemItemRequest[];
   deliveryDate: Date;
   suplierId: UniqueEntityID;
-  storageId?: UniqueEntityID;
 }
 
 export class CreateOrderBuyUseCase {
@@ -20,33 +24,21 @@ export class CreateOrderBuyUseCase {
     private buysRepositors: BuysRepository,
   ) {}
 
-  async execute({
-    productId,
-    amount,
-    deliveryDate,
-    suplierId,
-  }: CreateOrderBuyUseCaseRequest) {
-    const findProduct = await this.productsRepositors.findById(productId);
-
-    if (!findProduct) {
-      throw new Error("Product ID is not exists!");
+  async execute({ items, deliveryDate }: CreateOrderBuyUseCaseRequest) {
+    if (!items || items.length === 0) {
+      throw new Error("At least one product is required to create a buy");
     }
 
-    const findSuplier = await this.supliersRepositors.findById(suplierId);
+    const buyItems: BuyItem[] = [];
 
-    if (!findSuplier) {
-      throw new Error("Suplier not exists!");
+    for (const item of items) {
+      const product = await this.productsRepositors.findById(item.productId);
+
+      if (!product) {
+        throw new Error(
+          `Product with ID ${item.productId.toString()} not found!`,
+        );
+      }
     }
-
-    const orderBuy = Buy.create({
-      productId,
-      amount,
-      deliveryDate,
-      suplierId,
-    });
-
-    await this.buysRepositors.create(orderBuy);
-
-    return orderBuy;
   }
 }

@@ -1,12 +1,17 @@
 import type { UniqueEntityID } from "@/core/entities/unique-entity-id";
 import type { ProductsRepository } from "../repositories/product-repository";
 import type { SalesRepository } from "../repositories/sale-repository";
-import { Sale } from "../entities/sale";
+import { Sale, type SaleItem } from "../entities/sale";
 import type { StoragesRepository } from "../repositories/storage-repository";
 
-interface CreateOrderSaleUseCaseRequest {
+interface OrdemItemRequest {
   productId: UniqueEntityID;
   amount: number;
+  costPerUnit: number;
+}
+
+interface CreateOrderSaleUseCaseRequest {
+  items: OrdemItemRequest[];
 }
 
 export class CreateOrderSaleUseCase {
@@ -16,33 +21,56 @@ export class CreateOrderSaleUseCase {
     private salesRepository: SalesRepository,
   ) {}
 
-  async execute({ productId, amount }: CreateOrderSaleUseCaseRequest) {
-    const findProduct = await this.productsRepository.findById(productId);
-
-    if (!findProduct) {
-      throw new Error("Product not found!");
+  async execute({ items }: CreateOrderSaleUseCaseRequest) {
+    if (!items || items.length === 0) {
+      throw new Error("At least one item is required to create a sale.");
     }
 
-    const findStorage =
-      await this.storagesRepository.findByProductId(productId);
+    const saleItems: SaleItem[] = [];
 
-    if (!findStorage) {
-      throw new Error("Product not have amount in storage");
-    }
+    for (const item of items) {
+      const product = await this.productsRepository.findById(item.productId);
 
-    if (amount > findStorage.amount) {
-      throw new Error(
-        "The quantity in storage is less than the requested amount.",
+      if (!product) {
+        throw new Error(
+          `Product with ID ${item.productId.toString()} not found!`,
+        );
+      }
+
+      const storage = await this.storagesRepository.findByProductId(
+        item.productId,
       );
+
+      if (!storage) {
+        throw new Error(`Product ${product.name} does not have stock record.`);
+      }
+
+      if (item.amount > storage.amount) {
+        throw new Error(
+          `Insufficient stock for ${product.name}. Available: ${storage.amount}, Requested: ${item.amount}`,
+        );
+      }
+
+      saleItems.push({
+        productId: product.id,
+        amount: item.amount,
+        costPerUnit: item.costPerUnit,
+      });
     }
 
-    findStorage.amount = findStorage.amount - amount;
+    for (const item of items) {
+      const storage = await this.storagesRepository.findByProductId(
+        item.productId,
+      );
 
-    await this.storagesRepository.save(findStorage);
+      if (storage) {
+        storage.amount = storage.amount - item.amount;
+        await this.storagesRepository.save(storage);
+      }
+    }
 
     const orderSale = Sale.create({
-      productId,
-      amount,
+      items: saleItems,
     });
 
     await this.salesRepository.create(orderSale);

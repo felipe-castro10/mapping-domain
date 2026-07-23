@@ -4,4 +4,5 @@ import type { Sale } from "../entities/sale";
 export interface SalesRepository {
   create(sale: Sale): Promise<void>;
   findById(id: UniqueEntityID): Promise<Sale | null>;
+  fetchByPeriod(startDate: Date, endDate: Date): Promise<Sale[] | null>;
 }

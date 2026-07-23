@@ -38,12 +38,14 @@ test("create an order buy", async () => {
 
   const orderBuy = await useCase.execute({
     productId: product.id,
+    costPerUnit: 2.5,
     amount: 100,
     deliveryDate: new Date(),
     suplierId: suplier.id,
   });
 
   expect(orderBuy.id).toBeInstanceOf(UniqueEntityID);
+  expect(orderBuy.total).toEqual(250);
   expect(orderBuy.amount).toEqual(100);
 });
 
