@@ -8,12 +8,13 @@ export interface BuyItem {
   costPerUnit: number;
   suplierId: UniqueEntityID;
   deliveryDate: Date;
+  receiptDate?: Date;
 }
 
 interface BuyProps {
   items: BuyItem[];
   total: number;
-  receiptDate?: Date;
+  finishReceipt?: Date;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -27,21 +28,12 @@ export class Buy extends Entity<BuyProps> {
     return this.props.total;
   }
 
-  get receiptDate() {
-    return this.props.receiptDate;
-  }
-
   get createdAt() {
     return this.props.createdAt;
   }
 
-  set receiptDate(receiptDate) {
-    this.props.receiptDate = receiptDate;
-    this.props.updatedAt = new Date();
-  }
-
   private calcTotal() {
-    this.props.total = this.props.items.reduce((acc, item) => {
+    this.props.total = (this.props.items ?? []).reduce((acc, item) => {
       return acc + item.costPerUnit * item.amount;
     }, 0);
   }

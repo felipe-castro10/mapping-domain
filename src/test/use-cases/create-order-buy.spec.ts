@@ -9,44 +9,112 @@ import { UniqueEntityID } from "@/core/entities/unique-entity-id";
 let inMemoryProductsRepository: InMemoryProductsRepository;
 let inMemorySupliersRepository: InMemorySupiersRepository;
 let inMemoryBuysRepository: InMemoryBuysRepository;
+let useCase: CreateOrderBuyUseCase;
 
-test("create an order buy", async () => {
-  inMemoryProductsRepository = new InMemoryProductsRepository();
-  inMemorySupliersRepository = new InMemorySupiersRepository();
-  inMemoryBuysRepository = new InMemoryBuysRepository();
+describe("Create Order Buy Use Case", () => {
+  beforeEach(() => {
+    inMemoryProductsRepository = new InMemoryProductsRepository();
+    inMemorySupliersRepository = new InMemorySupiersRepository();
+    inMemoryBuysRepository = new InMemoryBuysRepository();
 
-  const useCase = new CreateOrderBuyUseCase(
-    inMemoryProductsRepository,
-    inMemorySupliersRepository,
-    inMemoryBuysRepository,
-  );
-
-  const product = Product.create({
-    name: "sabonete",
-    description: "Sabonete muito bom",
-    minStorage: 10,
+    useCase = new CreateOrderBuyUseCase(
+      inMemoryProductsRepository,
+      inMemorySupliersRepository,
+      inMemoryBuysRepository,
+    );
   });
 
-  const suplier = Suplier.create({
-    name: "Sabonetes LTDA",
-    cnpj: "12345678910",
-    address: "Rua teste",
+  test("should be able to create an order buy with multiple items", async () => {
+    // 1. Criando os fornecedores e produtos necessários
+    const product = Product.create({
+      name: "Sabonete",
+      description: "Sabonete muito bom",
+      minStorage: 10,
+    });
+
+    const suplier = Suplier.create({
+      name: "Sabonetes LTDA",
+      cnpj: "12345678910",
+      address: "Rua teste",
+    });
+
+    await inMemoryProductsRepository.create(product);
+    await inMemorySupliersRepository.create(suplier);
+
+    // 2. Executando o caso de uso com o array de itens
+    const orderBuy = await useCase.execute({
+      items: [
+        {
+          productId: product.id,
+          costPerUnit: 2.5,
+          amount: 100,
+          deliveryDate: new Date(),
+          suplierId: suplier.id,
+        },
+      ],
+    });
+
+    // 3. Validações
+    expect(orderBuy.id).toBeInstanceOf(UniqueEntityID);
+    expect(orderBuy.items).toHaveLength(1);
+    expect(orderBuy.total).toEqual(250); // 100 * 2.5
+    expect(orderBuy.items[0].productId.equals(product.id)).toBe(true);
+    expect(inMemoryBuysRepository.items).toHaveLength(1);
   });
 
-  await inMemoryProductsRepository.create(product);
-  await inMemorySupliersRepository.create(suplier);
-
-  const orderBuy = await useCase.execute({
-    productId: product.id,
-    costPerUnit: 2.5,
-    amount: 100,
-    deliveryDate: new Date(),
-    suplierId: suplier.id,
+  test("should not be able to create an order buy without items", async () => {
+    await expect(() =>
+      useCase.execute({
+        items: [],
+      }),
+    ).rejects.toThrow("At least one product is required to create a buy");
   });
 
-  expect(orderBuy.id).toBeInstanceOf(UniqueEntityID);
-  expect(orderBuy.total).toEqual(250);
-  expect(orderBuy.amount).toEqual(100);
+  test("should not be able to create an order buy with a non-existing product", async () => {
+    const suplier = Suplier.create({
+      name: "Sabonetes LTDA",
+      cnpj: "12345678910",
+      address: "Rua teste",
+    });
+
+    await inMemorySupliersRepository.create(suplier);
+
+    await expect(() =>
+      useCase.execute({
+        items: [
+          {
+            productId: new UniqueEntityID("inexistent-product-id"),
+            costPerUnit: 2.5,
+            amount: 100,
+            deliveryDate: new Date(),
+            suplierId: suplier.id,
+          },
+        ],
+      }),
+    ).rejects.toThrow();
+  });
+
+  test("should not be able to create an order buy with a non-existing supplier", async () => {
+    const product = Product.create({
+      name: "Sabonete",
+      description: "Sabonete muito bom",
+      minStorage: 10,
+    });
+
+    await inMemoryProductsRepository.create(product);
+
+    await expect(() =>
+      useCase.execute({
+        items: [
+          {
+            productId: product.id,
+            costPerUnit: 2.5,
+            amount: 100,
+            deliveryDate: new Date(),
+            suplierId: new UniqueEntityID("inexistent-supplier-id"),
+          },
+        ],
+      }),
+    ).rejects.toThrow();
+  });
 });
-
-test("Create buy with destiny storage", async () => {});
