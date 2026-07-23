@@ -5,6 +5,14 @@ import type { ProductsRepository } from "@/domain/repositories/product-repositor
 export class InMemoryProductsRepository implements ProductsRepository {
   public items: Product[] = [];
 
+  async fetchProducts(): Promise<Product[] | null> {
+    if (!this.items) {
+      return null;
+    }
+
+    return this.items;
+  }
+
   async create(product: Product): Promise<void> {
     this.items.push(product);
   }

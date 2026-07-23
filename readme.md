@@ -37,15 +37,15 @@ Domain Expert: Seria muito útil se o sistema pudesse nos permitir criar e geren
 - [x] Criar ordem de compra.
 - [x] Cadastro um produto.
 - [x] Cadastro fornecedor.
-- [] Criar estoque.
-- [ ] Criar uma ordem de venda.
-- [ ] Relatório estoque mínimo.
+- [x] Criar estoque.
+- [x] Criar uma ordem de venda.
+- [x] Relatório estoque mínimo.
 - [ ] Relatório métricas.
 
 ## Regra de negócio
 
-- [ ] Deve ser definido a quantidade minina no estoque de cada produto;
-- [ ] Deve ter definido identificador único em cada entidade;
-- [ ] Deve ser possível abastecer o estoque, assim que for confirmado a entrega do produto;
+- [x] Deve ser definido a quantidade minina no estoque de cada produto;
+- [x] Deve ser definido identificador único em cada entidade;
+- [x] Deve ser possível abastecer o estoque, assim que for confirmado a entrega do produto;
 - [ ] Seja possível retornar no relatório de metricas: Quantidade de produtos vendidos, lucro gerado por produto, quais os produtos vendidos melhor em cada período, e tendências de estoque ao longo do tempo.
-- [ ] Ao emitir o relatório dos produtos com estoque mínimo, seja possível permitir criar o pedido de compra para suprir as quantidades.
+- [x] Seja possível emitir relatório de estoque, e destacando os produtos que estão com estoque mínimo.
