@@ -3,17 +3,20 @@ import { CadSuplierUseCase } from "../../domain/use-cases/cad-suplier";
 import { InMemorySupiersRepository } from "../in-memory/in-memory-suplier-repository";
 
 let inMemorySupiersRepository: InMemorySupiersRepository;
+let useCase: CadSuplierUseCase;
 
-test("Create an suplier", async () => {
+beforeEach(() => {
   inMemorySupiersRepository = new InMemorySupiersRepository();
-  const useCase = new CadSuplierUseCase(inMemorySupiersRepository);
+  useCase = new CadSuplierUseCase(inMemorySupiersRepository);
 
-  const suplier = await useCase.execute({
-    name: "Omo Suplementos",
-    address: "Rua 6, barro: São José",
-    cnpj: "125.564.0001/01",
+  test("Create an suplier", async () => {
+    const suplier = await useCase.execute({
+      name: "Omo Suplementos",
+      address: "Rua 6, barro: São José",
+      cnpj: "125.564.0001/01",
+    });
+
+    expect(suplier.id).toBeInstanceOf(UniqueEntityID);
+    expect(suplier.name).toEqual("Omo Suplementos");
   });
-
-  expect(suplier.id).toBeInstanceOf(UniqueEntityID);
-  expect(suplier.name).toEqual("Omo Suplementos");
 });

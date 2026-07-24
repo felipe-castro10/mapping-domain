@@ -6,50 +6,55 @@ import { Storage } from "@/domain/entities/storage";
 
 let inMemoryProductsRepository: InMemoryProductsRepository;
 let inMemoryStoragesRepository: InMemoryStorageRepository;
+let useCase: FetchStoragesWithMinAmounts;
 
-test("fetch storages with min amount", async () => {
-  inMemoryProductsRepository = new InMemoryProductsRepository();
-  inMemoryStoragesRepository = new InMemoryStorageRepository();
+describe("Fech storages with min amoun", () => {
+  beforeEach(() => {
+    inMemoryProductsRepository = new InMemoryProductsRepository();
+    inMemoryStoragesRepository = new InMemoryStorageRepository();
 
-  const useCase = new FetchStoragesWithMinAmounts(
-    inMemoryProductsRepository,
-    inMemoryStoragesRepository,
-  );
-
-  const product = Product.create({
-    name: "Sabonete",
-    description: "Sabonete muito bom",
-    minStorage: 10,
+    useCase = new FetchStoragesWithMinAmounts(
+      inMemoryProductsRepository,
+      inMemoryStoragesRepository,
+    );
   });
 
-  const product2 = Product.create({
-    name: "Shampoo",
-    description: "Shampoo muito bom",
-    minStorage: 5,
+  test("fetch storages with min amount", async () => {
+    const product = Product.create({
+      name: "Sabonete",
+      description: "Sabonete muito bom",
+      minStorage: 10,
+    });
+
+    const product2 = Product.create({
+      name: "Shampoo",
+      description: "Shampoo muito bom",
+      minStorage: 5,
+    });
+
+    await inMemoryProductsRepository.create(product);
+    await inMemoryProductsRepository.create(product2);
+
+    const storage = Storage.create({
+      productId: product.id,
+      amount: 12,
+    });
+
+    const storage2 = Storage.create({
+      productId: product2.id,
+      amount: 4,
+    });
+
+    await inMemoryStoragesRepository.create(storage);
+    await inMemoryStoragesRepository.create(storage2);
+
+    const fetch = await useCase.execute();
+
+    expect(fetch.storagesItems).toHaveLength(2);
+    expect(fetch.minAmountStorages).toHaveLength(1);
+    expect(fetch.storagesItems).toEqual([
+      expect.objectContaining({ productName: "Sabonete" }),
+      expect.objectContaining({ productName: "Shampoo" }),
+    ]);
   });
-
-  await inMemoryProductsRepository.create(product);
-  await inMemoryProductsRepository.create(product2);
-
-  const storage = Storage.create({
-    productId: product.id,
-    amount: 12,
-  });
-
-  const storage2 = Storage.create({
-    productId: product2.id,
-    amount: 4,
-  });
-
-  await inMemoryStoragesRepository.create(storage);
-  await inMemoryStoragesRepository.create(storage2);
-
-  const fetch = await useCase.execute();
-
-  expect(fetch.storagesItems).toHaveLength(2);
-  expect(fetch.minAmountStorages).toHaveLength(1);
-  expect(fetch.storagesItems).toEqual([
-    expect.objectContaining({ productName: "Sabonete" }),
-    expect.objectContaining({ productName: "Shampoo" }),
-  ]);
 });

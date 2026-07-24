@@ -25,7 +25,6 @@ describe("Create Order Buy Use Case", () => {
   });
 
   test("should be able to create an order buy with multiple items", async () => {
-    // 1. Criando os fornecedores e produtos necessários
     const product = Product.create({
       name: "Sabonete",
       description: "Sabonete muito bom",
@@ -41,7 +40,6 @@ describe("Create Order Buy Use Case", () => {
     await inMemoryProductsRepository.create(product);
     await inMemorySupliersRepository.create(suplier);
 
-    // 2. Executando o caso de uso com o array de itens
     const orderBuy = await useCase.execute({
       items: [
         {
@@ -54,10 +52,9 @@ describe("Create Order Buy Use Case", () => {
       ],
     });
 
-    // 3. Validações
     expect(orderBuy.id).toBeInstanceOf(UniqueEntityID);
     expect(orderBuy.items).toHaveLength(1);
-    expect(orderBuy.total).toEqual(250); // 100 * 2.5
+    expect(orderBuy.total).toEqual(250);
     expect(orderBuy.items[0].productId.equals(product.id)).toBe(true);
     expect(inMemoryBuysRepository.items).toHaveLength(1);
   });

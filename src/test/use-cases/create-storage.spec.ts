@@ -6,29 +6,32 @@ import { UniqueEntityID } from "@/core/entities/unique-entity-id";
 
 let inMemoryProductsRepository: InMemoryProductsRepository;
 let inMemoryStorageRepository: InMemoryStorageRepository;
+let useCase: CreateStorageUseCase;
 
-test("Create an storage for product", async () => {
+describe("Create an storage for product", () => {
   inMemoryProductsRepository = new InMemoryProductsRepository();
   inMemoryStorageRepository = new InMemoryStorageRepository();
 
-  const useCase = new CreateStorageUseCase(
+  useCase = new CreateStorageUseCase(
     inMemoryProductsRepository,
     inMemoryStorageRepository,
   );
 
-  const product = Product.create({
-    name: "sabonete",
-    description: "Sabonete muito bom",
-    minStorage: 10,
+  test("Create an storage for product", async () => {
+    const product = Product.create({
+      name: "sabonete",
+      description: "Sabonete muito bom",
+      minStorage: 10,
+    });
+
+    await inMemoryProductsRepository.create(product);
+
+    const storageCreated = await useCase.execute({
+      productId: product.id,
+      amount: 100,
+    });
+
+    expect(storageCreated.productId).toBeInstanceOf(UniqueEntityID);
+    expect(storageCreated.amount).toEqual(100);
   });
-
-  await inMemoryProductsRepository.create(product);
-
-  const storageCreated = await useCase.execute({
-    productId: product.id,
-    amount: 100,
-  });
-
-  expect(storageCreated.productId).toBeInstanceOf(UniqueEntityID);
-  expect(storageCreated.amount).toEqual(100);
 });
