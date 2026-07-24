@@ -28,8 +28,25 @@ export class Buy extends Entity<BuyProps> {
     return this.props.total;
   }
 
+  get finishReceipt() {
+    return this.props.finishReceipt;
+  }
+
   get createdAt() {
     return this.props.createdAt;
+  }
+
+  get updatedAt() {
+    return this.props.updatedAt;
+  }
+
+  markAsReceived() {
+    this.props.finishReceipt = new Date();
+    this.touch();
+  }
+
+  private touch() {
+    this.props.updatedAt = new Date();
   }
 
   private calcTotal() {

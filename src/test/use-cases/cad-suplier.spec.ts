@@ -5,11 +5,13 @@ import { InMemorySupiersRepository } from "../in-memory/in-memory-suplier-reposi
 let inMemorySupiersRepository: InMemorySupiersRepository;
 let useCase: CadSuplierUseCase;
 
-beforeEach(() => {
-  inMemorySupiersRepository = new InMemorySupiersRepository();
-  useCase = new CadSuplierUseCase(inMemorySupiersRepository);
+describe("Cad Suplier Use Case", () => {
+  beforeEach(() => {
+    inMemorySupiersRepository = new InMemorySupiersRepository();
+    useCase = new CadSuplierUseCase(inMemorySupiersRepository);
+  });
 
-  test("Create an suplier", async () => {
+  test("Create a suplier", async () => {
     const suplier = await useCase.execute({
       name: "Omo Suplementos",
       address: "Rua 6, barro: São José",
